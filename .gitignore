@@ -4,13 +4,27 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+build/
+dist/
+
+# Testes / lint / tipagem
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
-# Data / runtime state
-data/
+# Ambiente / runtime
+.env
+.env.*
+!.env.example
+/data/
+/logs/
 *.log
 
-# IDE
+# SO / editores
+.DS_Store
+Thumbs.db
 .idea/
 .vscode/
+*.swp
