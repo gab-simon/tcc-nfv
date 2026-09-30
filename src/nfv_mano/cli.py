@@ -36,11 +36,11 @@ _BASE_URL_ATTR = {
 def _load_app(component: str, settings: Settings):
     """Instantiate the FastAPI app for a component name."""
     if component == "vnfm":
-        from nfv_mano.vnfm.api import create_app
+        from nfv_mano.vnfm import create_app
     elif component == "nfvo":
-        from nfv_mano.nfvo.api import create_app
+        from nfv_mano.nfvo import create_app
     elif component == "vim":
-        from nfv_mano.vim.api import create_app
+        from nfv_mano.vim import create_app
     else:  # pragma: no cover - guarded by typer
         raise typer.BadParameter(f"unknown component {component!r}")
     return create_app(settings)

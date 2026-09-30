@@ -1,46 +1,76 @@
-"""Data models aligned with the ETSI NFV information model.
+"""ETSI data models and lifecycle states.
 
-The models are intentionally small but keep the ETSI naming so they can grow
-towards the full IFA/SOL schemas:
-
-* ``Vnfd`` / ``Nsd``            - catalogue descriptors (GS NFV-SOL 001/002).
-* ``VnfInstance`` / ``NsInstance`` - instantiated entities (GS NFV-SOL 003/005).
-* ``NfviResource``              - NFVI resources tracked by the VIM.
-* ``VimInfo``                   - a registered VIM.
-* ``LcmOperationOccurrence``    - a lifecycle operation and its state.
+Kept close to the ETSI naming (GS NFV-SOL 001/002/003/005) so the API can
+evolve to the standard schemas later.
 """
 
-from __future__ import annotations
-
 from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
-from nfv_mano.common.ids import generate_id
-from nfv_mano.common.lcm import (
-    InstantiationState,
-    LcmOperationState,
-    LcmOperationType,
-    ResourceState,
-)
+from nfv_mano.common import generate_id
+
+
+class InstantiationState(StrEnum):
+    NOT_INSTANTIATED = "NOT_INSTANTIATED"
+    INSTANTIATED = "INSTANTIATED"
+
+
+class LcmOperationType(StrEnum):
+    INSTANTIATE = "INSTANTIATE"
+    SCALE = "SCALE"
+    UPDATE = "UPDATE"
+    TERMINATE = "TERMINATE"
+    HEAL = "HEAL"
+    QUERY = "QUERY"
+
+
+class LcmOperationState(StrEnum):
+    STARTING = "STARTING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED_TEMP = "FAILED_TEMP"
+    FAILED = "FAILED"
+    ROLLING_BACK = "ROLLING_BACK"
+    ROLLING_BACK_FAILED = "ROLLING_BACK_FAILED"
+
+    @property
+    def is_terminal(self) -> bool:
+        return self in {
+            LcmOperationState.COMPLETED,
+            LcmOperationState.FAILED,
+            LcmOperationState.ROLLING_BACK_FAILED,
+        }
+
+    @property
+    def is_success(self) -> bool:
+        return self is LcmOperationState.COMPLETED
+
+
+class ResourceState(StrEnum):
+    NOT_CREATED = "NOT_CREATED"
+    CREATING = "CREATING"
+    RUNNING = "RUNNING"
+    STOPPED = "STOPPED"
+    DELETING = "DELETING"
+    DELETED = "DELETED"
+    FAILED = "FAILED"
 
 
 def utcnow() -> datetime:
-    """Return the current timezone-aware UTC time."""
     return datetime.now(UTC)
 
 
 class VirtualCompute(BaseModel):
-    """Compute requirements/attributes of a virtualised container (VDU)."""
-
     image: str
     num_cpus: int = Field(default=1, ge=1)
     mem_size: str = "256m"
 
 
 class Vnfd(BaseModel):
-    """VNF Descriptor as stored in the VNF Catalog."""
+    """VNF Descriptor (VNF Catalog)."""
 
     id: str = Field(default_factory=lambda: generate_id("vnfd-"))
     name: str
@@ -52,7 +82,7 @@ class Vnfd(BaseModel):
 
 
 class Nsd(BaseModel):
-    """Network Service Descriptor as stored in the NS Catalog."""
+    """Network Service Descriptor (NS Catalog)."""
 
     id: str = Field(default_factory=lambda: generate_id("nsd-"))
     name: str
@@ -64,7 +94,7 @@ class Nsd(BaseModel):
 
 
 class VimInfo(BaseModel):
-    """A VIM registered in the NFVI Resources repository."""
+    """A registered VIM."""
 
     id: str = Field(default_factory=lambda: generate_id("vim-"))
     name: str
@@ -74,7 +104,7 @@ class VimInfo(BaseModel):
 
 
 class NfviResource(BaseModel):
-    """A virtualised resource allocated by a VIM (compute, storage, network)."""
+    """A virtualised resource allocated by a VIM."""
 
     id: str = Field(default_factory=lambda: generate_id("res-"))
     vim_id: str
@@ -100,13 +130,10 @@ class LcmOperationOccurrence(BaseModel):
     updated_at: datetime = Field(default_factory=utcnow)
 
     def touch(self) -> None:
-        """Refresh ``updated_at`` after a state change."""
         self.updated_at = utcnow()
 
 
 class VnfInstance(BaseModel):
-    """An instantiated VNF managed by a VNFM."""
-
     id: str = Field(default_factory=lambda: generate_id("vnf-"))
     vnfd_id: str
     vnfm_id: str
@@ -124,8 +151,6 @@ class VnfInstance(BaseModel):
 
 
 class NsInstance(BaseModel):
-    """An instantiated Network Service managed by the NFVO."""
-
     id: str = Field(default_factory=lambda: generate_id("ns-"))
     nsd_id: str
     name: str = ""

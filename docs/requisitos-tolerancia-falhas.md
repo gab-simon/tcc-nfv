@@ -94,7 +94,7 @@ O VIM **não deve ser tratado como o NFVO/VNFM**. Requisitos específicos:
 5. **Operações idempotentes.** Como a reconciliação pode repetir operações,
    `allocate`/`terminate` precisam ser idempotentes (o driver já trata
    `terminate` de recurso inexistente de forma tolerante em
-   `vim/drivers/docker_driver.py`).
+   `vim.py` (`DockerDriver`)).
 
 Resumo: **NFVO/VNFM exigem consenso forte; o VIM exige reconciliação
 idempotente e particionamento por domínio.** Ambos, porém, precisam de
@@ -117,7 +117,7 @@ sobreviva, enquanto a resiliência por VNF garante o serviço.
 ## 7. Ponto de extensão no código
 
 A decisão de projeto central é que **todo** acesso a estado passa por
-`repositories/base.py::Repository`. Trocar o backend não afeta NFVO, VNFM ou
+`repositories.py::Repository`. Trocar o backend não afeta NFVO, VNFM ou
 VIM:
 
 ```python
@@ -131,8 +131,7 @@ class Repository[T: BaseModel](ABC):
 
 Plano:
 
-1. Implementar `EtcdRepository` com a mesma interface
-   (`repositories/backends/etcd.py`).
+1. Implementar `EtcdRepository` com a mesma interface (em `repositories.py`).
 2. Aplicar LCM como comandos replicados (log Raft) em vez de escritas diretas.
 3. Adicionar eleição de líder por bloco (lease no etcd) e *failover*.
 4. Para o VIM, adicionar um laço de **reconciliação** que reconstrói

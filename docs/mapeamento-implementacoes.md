@@ -39,16 +39,16 @@ aproveitado, o que foi alterado e por quê.
 
 | Conceito ETSI | `nham` | `aodoan/tcc` | `nfv-mano` (este) |
 | --- | --- | --- | --- |
-| NFVO | `nfv-mano/nfvo.py` (REST) | `mano/nfvo.py` (RabbitMQ) | `nfvo/` (REST `Os-Ma-nfvo`) |
-| VNFM | `nfv-mano/vnfm.py` | `mano/vnfm.py` | `vnfm/` (REST `Or-Vnfm`) |
-| VIM | `nfv-mano/vim.py` | `mano/vim.py` | `vim/` (REST `Vi-Vnfm` + driver `Nf-Vi`) |
-| Catálogo VNF/NS | implícito em `nfv-mano/utils.py` | implícito no NFVO | `repositories/factory.py` (`vnf_catalog`, `ns_catalog`) |
-| Instâncias | arquivos `../db/vnf`, `../db/sfc` | dicionários em memória | `repositories/factory.py` (`vnf_instances`, `ns_instances`) |
-| Recursos NFVI | arquivo `../db/device` | lista `running_containers` | `vim/manager.py` + `nfvi_resources` |
-| Orquestração de NS | `nfvo.py::create_sfc` | `nfvo.py::create_sfc` | `nfvo/manager.py::instantiate_ns` |
-| LCM de VNF | `vnfm.py::create_vnf` | `vnfm.py::create_vnf` | `vnfm/manager.py::instantiate_vnf` |
-| Alocação NFVI | `vim.py::create_virtual_device` | `vim.py::start_container` | `vim/manager.py::allocate_compute` |
-| Driver NFVI | Docker direto no VIM | Docker direto no VIM | `vim/drivers/` (Docker + mock) |
+| NFVO | `nfv-mano/nfvo.py` (REST) | `mano/nfvo.py` (RabbitMQ) | `nfvo.py` (REST `Os-Ma-nfvo`) |
+| VNFM | `nfv-mano/vnfm.py` | `mano/vnfm.py` | `vnfm.py` (REST `Or-Vnfm`) |
+| VIM | `nfv-mano/vim.py` | `mano/vim.py` | `vim.py` (REST `Vi-Vnfm` + driver `Nf-Vi`) |
+| Catálogo VNF/NS | implícito em `nfv-mano/utils.py` | implícito no NFVO | `repositories.py` (`vnf_catalog`, `ns_catalog`) |
+| Instâncias | arquivos `../db/vnf`, `../db/sfc` | dicionários em memória | `repositories.py` (`vnf_instances`, `ns_instances`) |
+| Recursos NFVI | arquivo `../db/device` | lista `running_containers` | `vim.py` (`VimManager`) + `nfvi_resources` |
+| Orquestração de NS | `nfvo.py::create_sfc` | `nfvo.py::create_sfc` | `nfvo.py::instantiate_ns` |
+| LCM de VNF | `vnfm.py::create_vnf` | `vnfm.py::create_vnf` | `vnfm.py::instantiate_vnf` |
+| Alocação NFVI | `vim.py::create_virtual_device` | `vim.py::start_container` | `vim.py::allocate_compute` |
+| Driver NFVI | Docker direto no VIM | Docker direto no VIM | `vim.py` (`MockDriver`/`DockerDriver`) |
 | Cliente/CLI | `bin/client` | `client/client.py` | `nfv-mano serve` / `nfv-mano demo` |
 | Tolerância a falhas | `nham/fms.py` + `nham/sm.py` | ausente | **trabalho futuro** (ver doc dedicado) |
 | SFC / forwarding | `sff.py`, `sfc_enabler.py` | `sfc/`, `gateway/` | **fora do escopo base** |
@@ -69,7 +69,8 @@ Do **`nham`**:
 Da implementação do **ex-aluno (`aodoan/tcc`)**:
 
 - A organização modular por bloco (`mano/`, `sfc/`, `vnf/`, `gateway/`), que
-  foi mantida como `nfvo/`, `vnfm/`, `vim/`, `common/`, `repositories/`.
+  foi mantida como `nfvo.py`, `vnfm.py`, `vim.py`, `repositories.py` e
+  `models.py`.
 - O uso de **containers Docker** como NFVI (agora isolado atrás de um driver).
 - O VNFM como ponto que resolve o *forward graph* da cadeia — aqui
   simplificado para a composição de instâncias de VNF do NSD.
@@ -109,7 +110,7 @@ nham/nfv-mano/{nfvo,vnfm,vim}.py      aodoan/{mano,sfc,vnf}/
             +----------------+------------------+
                              v
                      src/nfv_mano/
-                       nfvo/   vnfm/   vim/   repositories/   common/
+                       nfvo.py   vnfm.py   vim.py   repositories.py   models.py
 ```
 
 O protótipo base mantém o mesmo recorte de blocos, mas com fronteiras

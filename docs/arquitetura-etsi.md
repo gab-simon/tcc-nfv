@@ -35,12 +35,12 @@ protótipo eles são APIs REST (FastAPI):
 
 | Reference point | Entre | Implementação neste projeto |
 | --- | --- | --- |
-| `Os-Ma-nfvo` | OSS/BSS ↔ NFVO | `nfvo/api.py` (`/os/...`) |
-| `Or-Vnfm` | NFVO ↔ VNFM | `vnfm/api.py` (`/or/...`) + `nfvo/vnfm_client.py` |
-| `Vi-Vnfm` | VNFM ↔ VIM | `vim/api.py` (`/vi/...`) + `vnfm/vim_client.py` |
-| `Nf-Vi` | VIM ↔ NFVI | `vim/drivers/` (`mock_driver.py`, `docker_driver.py`) |
+| `Os-Ma-nfvo` | OSS/BSS ↔ NFVO | `nfvo.py` (`/os/...`) |
+| `Or-Vnfm` | NFVO ↔ VNFM | `vnfm.py` (`/or/...`) + `nfvo.py` (`VnfmClient`) |
+| `Vi-Vnfm` | VNFM ↔ VIM | `vim.py` (`/vi/...`) + `vnfm.py` (`VimClient`) |
+| `Nf-Vi` | VIM ↔ NFVI | `vim.py` (`MockDriver`, `DockerDriver`) |
 | `Or-Vi` | NFVO ↔ VIM | **Fora do escopo** do protótipo base (orquestração de recursos entre múltiplos VIMs). |
-| `Ve-Vnfm-em` | EM ↔ VNFM | Visão somente leitura em `vnfm/api.py` (`/ve/...`). |
+| `Ve-Vnfm-em` | EM ↔ VNFM | Visão somente leitura em `vnfm.py` (`/ve/...`). |
 | `Ve-Vnfm-vnf` | VNFM ↔ VNF | **Fora do escopo** (interação direta com a VNF). |
 | `Vn-Nf` | VNF ↔ NFVI | Fornecido pela plataforma de virtualização (Docker). |
 
@@ -71,30 +71,19 @@ flowchart LR
 
 ```
 src/nfv_mano/
-  config.py                # settings (pydantic-settings), portas e backend
-  common/                  # modelos ETSI, enums de LCM, ids, logging, erros
-    models.py              # Vnfd, Nsd, VnfInstance, NsInstance, NfviResource...
-    lcm.py                 # InstantiationState, LcmOperationState...
-    api.py                 # mapeamento de exceções -> HTTP
-  repositories/            # os repositórios ETSI atrás de uma interface única
-    base.py                # interface Repository[T]
-    backends/memory.py     # backend em memória
-    backends/file.py       # backend em arquivos JSON
-    factory.py             # monta os repositórios conforme a config
-  nfvo/                    # NFVO
-    api.py                 # Os-Ma-nfvo
-    manager.py             # catálogos + ciclo de vida de NS
-    vnfm_client.py         # cliente Or-Vnfm
-  vnfm/                    # VNFM
-    api.py                 # Or-Vnfm (+ Ve-Vnfm-em)
-    manager.py             # ciclo de vida de VNF
-    vim_client.py          # cliente Vi-Vnfm
-  vim/                     # VIM
-    api.py                 # Vi-Vnfm
-    manager.py             # ciclo de vida de recursos NFVI
-    drivers/               # Nf-Vi: base, mock, docker
-  cli.py                   # comandos serve e demo
+  config.py         # settings (pydantic-settings), portas e backend
+  common.py         # ids, logging, exceções e mapeamento de erro -> HTTP
+  models.py         # modelos ETSI e enums de LCM
+  repositories.py   # interface Repository[T] + backends memory/file
+  nfvo.py           # NFVO: catálogos, NS LCM e cliente Or-Vnfm
+  vnfm.py           # VNFM: VNF LCM e cliente Vi-Vnfm
+  vim.py            # VIM: Vi-Vnfm + drivers Nf-Vi (mock/docker)
+  cli.py            # comandos serve e demo
 ```
+
+Cada bloco do MANO fica em um único arquivo (como nas implementações de
+referência), separando apenas o que é transversal: modelos, repositórios,
+configuração e utilitários.
 
 ## 5. Fluxo de instanciação de um Network Service
 
