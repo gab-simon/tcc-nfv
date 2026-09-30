@@ -7,12 +7,9 @@ venv/
 build/
 dist/
 
-# Testes / lint / tipagem
+# Testes / lint
 .pytest_cache/
 .ruff_cache/
-.mypy_cache/
-.coverage
-htmlcov/
 
 # Ambiente / runtime
 .env
