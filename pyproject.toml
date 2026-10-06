@@ -22,8 +22,6 @@ nfv-mano = "nfv_mano.cli:app"
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3",
-    "pytest-asyncio>=0.24",
     "ruff>=0.8",
 ]
 
@@ -40,7 +38,3 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-asyncio_mode = "auto"

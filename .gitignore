@@ -7,8 +7,7 @@ venv/
 build/
 dist/
 
-# Testes / lint
-.pytest_cache/
+# Lint
 .ruff_cache/
 
 # Ambiente / runtime
