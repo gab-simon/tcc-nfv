@@ -1,38 +1,36 @@
-# NFV-MANO (base ETSI)
+# NFV-MANO
 
-Base de um NFV-MANO em Python seguindo a arquitetura padrão da ETSI.
-O foco inicial é o **NFV-MANO sem tolerância a falhas**; a tolerância a
-falhas (Raft/etcd) é trabalho futuro.
+Implementação simples de um NFV-MANO em Python, baseada na arquitetura da ETSI. O foco é só o funcionamento do MANO.
 
-## Componentes ETSI
+## Componentes
 
-- **NFVO** — Network Functions Virtualisation Orchestrator (`Os-Ma-nfvo`).
-- **VNFM** — VNF Manager (`Or-Vnfm`, `Ve-Vnfm-*`).
-- **VIM** — Virtualised Infrastructure Manager (`Vi-Vnfm`, `Nf-Vi`).
-- Repositórios ETSI: NS Catalog, VNF Catalog, NS/VNF Instances, NFVI Resources.
+- NFVO: orquestra os Network Services e mantém os catálogos.
+- VNFM: gerencia o ciclo de vida das VNFs.
+- VIM: gerencia os recursos da infraestrutura NFVI.
+- Também existem os repositórios com informações sobre NSs, VNFs, instâncias e recursos da infraestrutura.
 
 ## Requisitos
 
 - [uv](https://docs.astral.sh/uv/)
-- Python 3.12+ (gerenciado pelo uv)
+- Python 3.12+
 
-## Uso
+## Como usar
 
 ```bash
-uv sync                       # cria o ambiente e instala as dependências
-uv run pytest                 # testes
-uv run ruff check .           # lint
-uv run nfv-mano --help        # CLI
+uv sync
+uv run ruff check .
+uv run nfv-mano --help
 
-# Sobe um componente (nfvo, vnfm ou vim)
+# iniciar um componente
 uv run nfv-mano serve vim
 
-# Executa um ciclo de vida de Network Service de ponta a ponta (driver mock)
+# executar uma demonstração completa
 uv run nfv-mano demo
 ```
 
-Por padrão os componentes usam o backend de repositório em memória e o driver
-de VIM simulado. Para usar Docker e persistência em arquivo:
+Por padrão o estado fica em memória e o VIM é simulado (driver `mock`).
+
+Para usar Docker e salvar o estado em arquivo:
 
 ```bash
 export NFV_MANO_REPOSITORY_BACKEND=file
@@ -41,10 +39,4 @@ export NFV_MANO_VIM_DRIVER=docker
 
 ## Documentação
 
-- [`docs/arquitetura-etsi.md`](docs/arquitetura-etsi.md) — arquitetura ETSI e
-  mapeamento dos reference points para o código.
-- [`docs/mapeamento-implementacoes.md`](docs/mapeamento-implementacoes.md) —
-  relação com as implementações de referência (`nham` e `aodoan/tcc`).
-- [`docs/requisitos-tolerancia-falhas.md`](docs/requisitos-tolerancia-falhas.md)
-  — Proposta 0.1 e requisitos de tolerância a falhas (trabalho futuro).
-- [`docs/referencias.md`](docs/referencias.md) — referências.
+- [`docs/arquitetura-etsi.md`](docs/arquitetura-etsi.md): componentes, reference points e configuração.
