@@ -173,6 +173,7 @@ class DockerDriver(VimDriver):
 
 
 def build_driver(settings: Settings) -> VimDriver:
+    # The VIM only sees the VimDriver interface, mock or docker.
     if settings.vim_driver == "docker":
         return DockerDriver(network=settings.docker_network)
     return MockDriver()
@@ -225,6 +226,8 @@ class VimManager:
         target_vim = vim_id or self.default_vim_id
         self.vims_repo.get(target_vim)
 
+        # Saved before calling the driver, so a failed allocation still
+        # leaves a FAILED record behind.
         resource = NfviResource(
             vim_id=target_vim,
             image=image,

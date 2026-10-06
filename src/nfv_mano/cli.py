@@ -41,7 +41,7 @@ def _load_app(component: str, settings: Settings):
         from nfv_mano.nfvo import create_app
     elif component == "vim":
         from nfv_mano.vim import create_app
-    else:  # pragma: no cover - guarded by typer
+    else:
         raise typer.BadParameter(f"unknown component {component!r}")
     return create_app(settings)
 
@@ -95,6 +95,8 @@ def _wait_for_health(url: str, timeout: float = 10.0) -> bool:
 @app.command()
 def demo() -> None:
     """Boot the components and run a full Network Service lifecycle."""
+    # In-memory state and the mock driver on purpose: the demo should just
+    # run, with no Docker and no leftover files.
     settings = Settings(repository_backend="memory", vim_driver="mock")
     servers = [
         _ServerThread(

@@ -77,6 +77,8 @@ class MemoryRepository[T: BaseModel](Repository[T]):
         super().__init__(model, collection)
         self._data: dict[str, T] = {}
 
+    # Store and return copies so a caller changing an object does not change
+    # the stored state without going through update().
     def _persist(self, entity: T) -> None:
         self._data[entity.id] = entity.model_copy(deep=True)
 

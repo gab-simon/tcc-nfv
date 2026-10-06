@@ -18,37 +18,6 @@ class InstantiationState(StrEnum):
     INSTANTIATED = "INSTANTIATED"
 
 
-class LcmOperationType(StrEnum):
-    INSTANTIATE = "INSTANTIATE"
-    SCALE = "SCALE"
-    UPDATE = "UPDATE"
-    TERMINATE = "TERMINATE"
-    HEAL = "HEAL"
-    QUERY = "QUERY"
-
-
-class LcmOperationState(StrEnum):
-    STARTING = "STARTING"
-    PROCESSING = "PROCESSING"
-    COMPLETED = "COMPLETED"
-    FAILED_TEMP = "FAILED_TEMP"
-    FAILED = "FAILED"
-    ROLLING_BACK = "ROLLING_BACK"
-    ROLLING_BACK_FAILED = "ROLLING_BACK_FAILED"
-
-    @property
-    def is_terminal(self) -> bool:
-        return self in {
-            LcmOperationState.COMPLETED,
-            LcmOperationState.FAILED,
-            LcmOperationState.ROLLING_BACK_FAILED,
-        }
-
-    @property
-    def is_success(self) -> bool:
-        return self is LcmOperationState.COMPLETED
-
-
 class ResourceState(StrEnum):
     NOT_CREATED = "NOT_CREATED"
     CREATING = "CREATING"
@@ -116,21 +85,6 @@ class NfviResource(BaseModel):
     ip_address: str | None = None
     state: ResourceState = ResourceState.NOT_CREATED
     metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-class LcmOperationOccurrence(BaseModel):
-    """An LCM operation occurrence and its current state."""
-
-    id: str = Field(default_factory=lambda: generate_id("lcm-"))
-    operation: LcmOperationType
-    target_id: str
-    state: LcmOperationState = LcmOperationState.STARTING
-    error: str | None = None
-    created_at: datetime = Field(default_factory=utcnow)
-    updated_at: datetime = Field(default_factory=utcnow)
-
-    def touch(self) -> None:
-        self.updated_at = utcnow()
 
 
 class VnfInstance(BaseModel):

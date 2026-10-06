@@ -104,6 +104,8 @@ class NfvoManager:
         instance = NsInstance(nsd_id=nsd_id, name=name)
         self.ns_instances_repo.add(instance)
 
+        # One VNF per VNFD in the NSD. We remember what we created so we can
+        # undo it if something fails halfway through.
         created_vnfs: list[str] = []
         try:
             for index, vnfd_id in enumerate(nsd.vnfd_ids, start=1):

@@ -60,6 +60,8 @@ class VnfmClientError(NFVManoError):
     """A call to the VNFM on ``Or-Vnfm`` failed."""
 
 
+# One place that turns our errors into HTTP status codes, shared by every
+# reference point.
 _ERROR_STATUS = {
     NotFoundError: 404,
     ConflictError: 409,

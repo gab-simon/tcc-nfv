@@ -65,6 +65,8 @@ class VnfmManager:
     ) -> VnfInstance:
         instance = VnfInstance(vnfd_id=vnfd_id, vnfm_id=self.vnfm_id, metadata={"name": name})
         self.instances_repo.add(instance)
+        # Ask the VIM for the compute, then tie the resulting resource to
+        # this VNF instance.
         resource = self.vim_client.allocate_compute(
             image=virtual_compute.image,
             num_cpus=virtual_compute.num_cpus,

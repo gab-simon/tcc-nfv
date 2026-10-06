@@ -26,10 +26,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # Identity assigned to the VNFM instance (stored on VNF instances).
+    # Who this VNFM is; it gets copied into every VNF instance it creates.
     vnfm_id: str = "vnfm-1"
 
-    # Reference point bind addresses (ETSI: Os-Ma-nfvo, Or-Vnfm, Vi-Vnfm).
+    # Where each component listens (Os-Ma-nfvo, Or-Vnfm and Vi-Vnfm).
     nfvo_host: str = "127.0.0.1"
     nfvo_port: int = 9002
     vnfm_host: str = "127.0.0.1"
@@ -37,17 +37,16 @@ class Settings(BaseSettings):
     vim_host: str = "127.0.0.1"
     vim_port: int = 9000
 
-    # ETSI data repositories backend. ``memory`` is ephemeral, ``file`` persists
-    # JSON documents under ``data_dir``. A distributed backend (etcd/Raft) is
-    # planned as future work and must implement the same interface.
+    # Where the state lives. ``memory`` forgets everything on restart, ``file``
+    # writes JSON under ``data_dir``. The etcd/Raft backend we want later just
+    # has to keep this same interface.
     repository_backend: Literal["memory", "file"] = "memory"
     data_dir: Path = Field(default=Path("data"))
 
-    # VIM driver. ``mock`` simulates NFVI resources in memory; ``docker``
-    # really manages containers through the Docker daemon (Nf-Vi).
+    # How the VIM reaches the infrastructure: ``mock`` fakes resources in
+    # memory, ``docker`` really starts containers (Nf-Vi).
     vim_driver: Literal["mock", "docker"] = "mock"
     docker_network: str = "nfv-mano-net"
-    default_vnf_image: str = "alpine:latest"
 
     @property
     def nfvo_base_url(self) -> str:
